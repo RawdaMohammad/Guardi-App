@@ -12,7 +12,7 @@ class Menu extends StatefulWidget {
 }
 
 class _MenuState extends State<Menu> {
-  int selectedIndex = 0;
+  int selectedIndex = 3;
   // _MenuState() {
   //   selectedIndex = 3;
   // }
@@ -24,58 +24,58 @@ class _MenuState extends State<Menu> {
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         bottomNavigationBar: Container(
-            decoration: const BoxDecoration(
-              border: Border(
-                top: BorderSide(
-                    width: 4.0,
-                    color:
-                        Color(0xFF9C9C9C)), // Adjust width and color as needed
-              ),
+          decoration: const BoxDecoration(
+            border: Border(
+              top: BorderSide(
+                  width: 4.0,
+                  color: Color(0xFF9C9C9C)), // Adjust width and color as needed
             ),
-            child: Theme(
-                data: Theme.of(context).copyWith(
-                  canvasColor: const Color(0xFF858585),
+          ),
+          child: Theme(
+            data: Theme.of(context).copyWith(
+              canvasColor: const Color(0xFF858585),
+            ),
+            // ignore: sort_child_properties_last
+            child: BottomNavigationBar(
+              currentIndex: selectedIndex,
+              onTap: (val) {
+                setState(() {
+                  selectedIndex = val;
+                  if (val == 0) {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
+                      return const HomePage();
+                    }));
+                  }
+                });
+              },
+              backgroundColor: Colors.red,
+              selectedItemColor: Colors.black,
+              unselectedItemColor: Colors.white,
+              selectedFontSize: 20,
+              showUnselectedLabels: true,
+              selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
+              items: const [
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.home),
+                  label: "Home",
                 ),
-                // ignore: sort_child_properties_last
-                child: BottomNavigationBar(
-                  currentIndex: selectedIndex,
-                  onTap: (val) {
-                    setState(() {
-                      selectedIndex = val;
-                      if (val == 0) {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) {
-                          return const HomePage();
-                        }));
-                      }
-                    });
-                  },
-                  backgroundColor: Colors.red,
-                  selectedItemColor: Colors.black,
-                  unselectedItemColor: Colors.white,
-                  selectedFontSize: 20,
-                  showUnselectedLabels: true,
-                  selectedLabelStyle:
-                      const TextStyle(fontWeight: FontWeight.bold),
-                  items: const [
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.home),
-                      label: "Home",
-                    ),
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.notifications),
-                      label: "Notification",
-                    ),
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.person),
-                      label: "Profile",
-                    ),
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.menu),
-                      label: "Menu",
-                    ),
-                  ],
-                ))),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.notifications),
+                  label: "Notification",
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.person),
+                  label: "Profile",
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.menu),
+                  label: "Menu",
+                ),
+              ],
+            ),
+          ),
+        ),
         body: Container(
           width: screenWidth,
           decoration: const BoxDecoration(
