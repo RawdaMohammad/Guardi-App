@@ -1,9 +1,15 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, use_build_context_synchronously
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:guardi_app/screens/home_page.dart';
 import 'package:guardi_app/screens/signUp.dart';
+import 'package:guardi_app/services/routes.dart';
+import 'package:guardi_app/services/user_services.dart';
 import 'package:guardi_app/widgets/PasswordField.dart';
 import 'package:guardi_app/widgets/textField.dart';
+import 'package:http/http.dart' as http;
 
 class LogIn extends StatefulWidget {
   const LogIn({Key? key}) : super(key: key);
@@ -69,6 +75,20 @@ class _LoginPageState extends State<LogIn> {
 
   final email = TextEditingController();
   final password = TextEditingController();
+  loginPressed() async {
+    http.Response response =
+        await UserServices.login(email.text, password.text);
+    Map responseMap = jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) => const HomePage(),
+          ));
+    } else {
+      errorSnackBar(context, responseMap.values.first);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -145,10 +165,7 @@ class _LoginPageState extends State<LogIn> {
                     ),
                     onPressed: () {
                       if (formKey.currentState!.validate()) {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) {
-                          return const LogIn();
-                        }));
+                        loginPressed();
                       }
                     },
                     child: const Text(

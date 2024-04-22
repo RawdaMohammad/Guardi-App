@@ -1,12 +1,22 @@
 // // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
-// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
+// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors, use_build_context_synchronously
+
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:guardi_app/DB/Users.dart';
+import 'package:guardi_app/DB/api_response.dart';
+import 'package:guardi_app/screens/homePage.dart';
+import 'package:guardi_app/screens/home_page.dart';
+import 'package:guardi_app/services/routes.dart';
+import 'package:guardi_app/services/user_services.dart';
 import 'package:guardi_app/widgets/PasswordField.dart';
 import 'package:guardi_app/widgets/dateField.dart';
 import 'package:guardi_app/widgets/phoneNumber.dart';
 import 'package:guardi_app/widgets/textField.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 class SignUp extends StatefulWidget {
   SignUp({Key? key}) : super(key: key);
@@ -19,24 +29,80 @@ class SignUp extends StatefulWidget {
 class _LoginPageState extends State<SignUp> {
   bool isLoading = false;
 
-  String groupValue = "Female";
+  String groupValue = "female";
 
-  final firstName = TextEditingController();
-  final lastName = TextEditingController();
-  final email = TextEditingController();
-  final phoneNumber = TextEditingController();
-  final dateOfBirth = TextEditingController();
-  final password = TextEditingController();
-  final confirmPassword = TextEditingController();
+  late final firstName = TextEditingController();
+  late final lastName = TextEditingController();
+  late final email = TextEditingController();
+  late final phoneNumber = TextEditingController();
+  late final dateOfBirth = TextEditingController();
+  late final password = TextEditingController();
+  late final confirmPassword = TextEditingController();
 
+  bool loading = false;
   GlobalKey<FormState> formKey = GlobalKey();
+
+  // void registerUser() async {
+  //   ApiResponse response = await signUp(
+  //     "firstName.text",
+  //     "lastName.text",
+  //     "groupValue",
+  //     "email.text",
+  //     "2024-04-22T12:30:00.000000Z",
+  //     "phoneNumber.text",
+  //     "password.text",
+  //   );
+  //   // print(DateTime.now());
+  //   saveData(response.data as Users);
+  //   if (response.error == null) {
+  //   } else {
+  //     setState(() {
+  //       loading = !loading;
+  //     });
+  //   }
+  // }
+
+  // void saveData(Users user) async {
+  //   SharedPreferences pref = await SharedPreferences.getInstance();
+  //   await pref.setString('email', user.email ?? '');
+  // }
+
+  createAccountPressed() async {
+    // bool emailValid = RegExp(
+    //         r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+    //     .hasMatch(_email);
+    // if (emailValid) {
+    http.Response response = await UserServices.SignUp(
+        firstName.text,
+        lastName.text,
+        groupValue,
+        email.text,
+        dateOfBirth.text,
+        phoneNumber.text,
+        password.text);
+    Map responseMap = jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) => const Home_page(),
+          ));
+    } else {
+      print(groupValue);
+      errorSnackBar(context, responseMap.values.first[0]);
+    }
+    // } else {
+    //   errorSnackBar(context, 'email not valid');
+    // }
+  }
 
   // Validation function for FCI email
   String? validateEmail(String? value) {
     if (value == null || value.isEmpty) {
       return 'Please enter your email';
     }
-    RegExp regex = RegExp(r'^([0-9]+)@stud\.fci-cu\.edu\.eg$');
+    RegExp regex = RegExp(
+        r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
     if (!regex.hasMatch(value)) {
       return 'Please enter a valid FCI email';
     }
@@ -165,55 +231,39 @@ class _LoginPageState extends State<SignUp> {
                     ),
                   ),
                 ),
-                Container(
-                  width: 355,
-                  height: 60,
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                  margin:
-                      const EdgeInsets.only(left: 10, right: 10, bottom: 10),
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 255, 255, 255),
-                    borderRadius: BorderRadius.circular(15.0),
-                    // border: Border.all(color: Colors.black),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.5),
-                        spreadRadius: 0,
-                        blurRadius: 7,
-                        offset:
-                            const Offset(0, 3), // changes position of shadow
-                      ),
-                    ],
-                  ),
-                  child: Center(
-                    child: Expanded(
-                      flex: 3,
-                      child: DropdownButton<String>(
-                        isExpanded: true,
-                        value: groupValue,
-                        onChanged: (String? newValue) {
+                Row(
+                  children: [
+                    Expanded(
+                      child: RadioListTile(
+                        title: const Text(
+                          'Female',
+                          style: TextStyle(fontSize: 20),
+                        ),
+                        value: "female",
+                        groupValue: groupValue,
+                        onChanged: (value) {
                           setState(() {
-                            groupValue = newValue!;
+                            groupValue = value!;
                           });
                         },
-                        items: <String>[
-                          'Female',
-                          'Male',
-                        ].map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(
-                              value,
-                              style: const TextStyle(fontSize: 18),
-                            ),
-                          );
-                        }).toList(),
-                        icon: const Icon(Icons.arrow_drop_down),
-                        iconSize: 30,
-                        underline: const SizedBox(),
                       ),
                     ),
-                  ),
+                    Expanded(
+                      child: RadioListTile(
+                        title: const Text(
+                          'Male',
+                          style: TextStyle(fontSize: 20),
+                        ),
+                        value: "male",
+                        groupValue: groupValue,
+                        onChanged: (value) {
+                          setState(() {
+                            groupValue = value!;
+                          });
+                        },
+                      ),
+                    ),
+                  ],
                 ),
                 SizedBox(
                   height: 15,
@@ -276,10 +326,20 @@ class _LoginPageState extends State<SignUp> {
                       ),
                       onPressed: () {
                         if (formKey.currentState!.validate()) {
-                          Navigator.push(context,
-                              MaterialPageRoute(builder: (context) {
-                            return SignUp();
-                          }));
+                          createAccountPressed();
+                          // http.Response respo = await http.post(
+                          //     Uri.parse("http://10.0.2.2:8000/api/students"),
+                          //     body: {
+                          //       "id": "13",
+                          //       "name": "w",
+                          //       "gender": "female",
+                          //       "email": "13@stud.fci-cu.edu.eg",
+                          //       "level": "level 1",
+                          //       "password": "11111111",
+                          //       "imageName": "hhhhhh",
+                          //     });
+                          // print("--------------------------------\n");
+                          // print(respo.body);
                         }
                       },
                       child: Text(

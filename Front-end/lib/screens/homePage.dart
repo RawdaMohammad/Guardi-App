@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:guardi_app/screens/FirstAid.dart';
+import 'package:guardi_app/screens/e.contacts.dart';
 import 'package:guardi_app/screens/help&support/help&support.dart';
 import 'package:guardi_app/screens/logIn.dart';
 import 'package:guardi_app/screens/NaturalDisaster/naturalDisaster.dart';
@@ -29,7 +30,7 @@ class Home_page extends StatelessWidget {
         ),
         alignment: Alignment.center,
         padding: EdgeInsets.only(top: 40),
-        child: Column(
+        child: ListView(
           children: [
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -253,6 +254,27 @@ class Home_page extends StatelessWidget {
               },
               child: Text(
                 'Profile',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                ),
+              ),
+            ),
+            SizedBox(
+              height: 15,
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFF021E5C),
+                fixedSize: Size(180, 42),
+              ),
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return EContact();
+                }));
+              },
+              child: Text(
+                'Emergency Contacts',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 20,
