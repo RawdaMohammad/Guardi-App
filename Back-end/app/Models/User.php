@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use DateTime;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
@@ -26,6 +26,12 @@ class User extends Authenticatable
         'gender',
         'dateofbirth',
         'phone_number',
+        'verify_code',
+        'expire_at',
+        // 'mobile_verify_code',
+        // 'mobile_attempts_left',
+        // 'mobile_last_attempt_date',
+        // 'mobile_verify_code_sent_at',
     ];
 
     /**
@@ -36,6 +42,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        // 'mobile_verify_code',
     ];
 
     /**
@@ -45,20 +52,37 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        // 'mobile_verify_code_sent_at' => 'datetime',
+        // 'mobile_verified_at' =>'datetime',
+        // 'mobile_last_attempt_date'=>'datetime',
     ];
 
-    protected $dates = [
-        'dateofbirth',
-    ];
-
-    public function getAgeAttribute()
+    public function medicalInformation()
     {
-        if ($this->dateofbirth) {
-            $dateOfBirth = new DateTime($this->dateofbirth);
-            $today = new DateTime();
-            $age = $today->diff($dateOfBirth)->y;
-            return $age;
-        }
-        return null;
+        return $this->hasOne(MedicalInformation::class);
+    }
+
+    public function emergencyContacts(): HasMany
+    {
+        return $this->hasMany(EmergencyContacts::class);
+    }
+
+    public function volunteer()
+    {
+        return $this->hasOne(Volunteer::class);
+    }
+
+    public function generateCode(){
+        $this->timestamps= false;
+        $this->verify_code = rand(1000,9999);
+        $this->expire_at = now()->addMinutes(15);
+        $this->save();
+    }
+
+    public function resetCode(){
+        $this->timestamps= false;
+        $this->verify_code = null;
+        $this->expire_at = null;
+        $this->save();
     }
 }

@@ -5,6 +5,8 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:guardi_app/screens/medicalInfo.dart';
+
 import 'package:guardi_app/DB/Users.dart';
 import 'package:guardi_app/DB/api_response.dart';
 import 'package:guardi_app/screens/homePage.dart';
@@ -17,6 +19,8 @@ import 'package:guardi_app/widgets/phoneNumber.dart';
 import 'package:guardi_app/widgets/textField.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+
+import 'OTP.dart';
 
 class SignUp extends StatefulWidget {
   SignUp({Key? key}) : super(key: key);
@@ -79,16 +83,21 @@ class _LoginPageState extends State<SignUp> {
         email.text,
         dateOfBirth.text,
         phoneNumber.text,
-        password.text);
+        password.text
+    );
     Map responseMap = jsonDecode(response.body);
-    if (response.statusCode == 200) {
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
+    // print(responseMap);
+    if (response.statusCode == 201) {
+      print('llllllllllllllllllllllll');
       Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (BuildContext context) => const Home_page(),
+            builder: (BuildContext context) => otp(email: email.text),
           ));
     } else {
-      print(groupValue);
+      print('wwwwwwwwwwwwwwwwwwwww');
       errorSnackBar(context, responseMap.values.first[0]);
     }
     // } else {
@@ -327,6 +336,9 @@ class _LoginPageState extends State<SignUp> {
                       onPressed: () {
                         if (formKey.currentState!.validate()) {
                           createAccountPressed();
+                          Navigator.push(context, MaterialPageRoute(builder: (context) {
+                            return otp(email: email.text);
+                          }));
                           // http.Response respo = await http.post(
                           //     Uri.parse("http://10.0.2.2:8000/api/students"),
                           //     body: {

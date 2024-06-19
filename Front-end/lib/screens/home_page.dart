@@ -11,6 +11,8 @@ import 'package:guardi_app/screens/request_volunteer.dart';
 import 'package:guardi_app/widgets/custom_button.dart';
 import 'package:guardi_app/widgets/service_button.dart';
 
+import 'Verification.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -134,6 +136,12 @@ class HomePageState extends State<HomePage> {
                           setState(() {
                             isVolunteer = val;
                           });
+                          if (val) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => Verification()),
+                            );
+                          }
                         },
                       ),
                     ],

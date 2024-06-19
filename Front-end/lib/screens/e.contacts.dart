@@ -1,10 +1,16 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, sort_child_properties_last, must_be_immutable, non_constant_identifier_names
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:guardi_app/screens/homePage.dart';
 import 'package:guardi_app/screens/home_page.dart';
+import 'package:guardi_app/services/econtacts_services.dart';
 // import 'package:guardi_app/widgets/addContact.dart';
 import 'package:guardi_app/widgets/textField.dart';
+import 'package:http/http.dart' as http;
+
+import '../services/routes.dart';
 
 class EContact extends StatefulWidget {
   const EContact({Key? key}) : super(key: key);
@@ -17,10 +23,35 @@ class EContact extends StatefulWidget {
 class EContactState extends State<EContact> {
   bool isLoading = false;
   List<Map<String, String>> emergencyContacts = [];
+  final user_id = '1';
   final contact_name = TextEditingController();
   final contact_phone = TextEditingController();
   final contact_relation = TextEditingController();
   GlobalKey<FormState> formKey = GlobalKey();
+
+  addEmergencyContact() async {
+    String fullName = contact_name.text;
+    String phoneNumber = contact_phone.text;
+    String relationshipStatus = contact_relation.text;
+    http.Response response = await EmergencyContactService.addEmergencyContact(
+        fullName,
+        phoneNumber,
+        relationshipStatus
+    );
+    Map responseMap = jsonDecode(response.body);
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
+    if (response.statusCode == 201) {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) => const HomePage(),
+          ));
+    } else {
+      print('///////////////');
+      errorSnackBar(context, responseMap.values.first[0]);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -93,8 +124,7 @@ class EContactState extends State<EContact> {
                       Column(
                         children: [
                           CustomTextField(
-                            controller: TextEditingController(
-                                text: emergencyContacts[i]['name']),
+                            controller: contact_name,
                             text: 'Full Name',
                             inputType: TextInputType.name,
                             hintText: 'Contact Name',
@@ -109,11 +139,10 @@ class EContactState extends State<EContact> {
                             height: 15,
                           ),
                           CustomTextField(
-                            controller: TextEditingController(
-                                text: emergencyContacts[i]['phone']),
+                            controller: contact_phone,
                             text: 'Phone Number',
                             inputType: TextInputType.phone,
-                            hintText: 'Contat Phone Number',
+                            hintText: 'Contact Phone Number',
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Please Enter Phone Number';
@@ -125,8 +154,7 @@ class EContactState extends State<EContact> {
                             height: 15,
                           ),
                           CustomTextField(
-                            controller: TextEditingController(
-                                text: emergencyContacts[i]['relation']),
+                            controller:contact_relation,
                             text: 'Relationship (Optional)',
                             inputType: TextInputType.phone,
                             hintText: 'Relationship',
@@ -164,9 +192,9 @@ class EContactState extends State<EContact> {
                             setState(() {
                               // Add an empty contact entry to the list
                               emergencyContacts.add({
-                                'name': '',
-                                'phone': '',
-                                'relation': '',
+                                'full_name': '',
+                                'phone_number': '',
+                                'relationship_status': '',
                               });
                             });
                           },
@@ -203,7 +231,7 @@ class EContactState extends State<EContact> {
                   ),
                   onPressed: () {
                     if (formKey.currentState!.validate()) {
-                      // Handle the form submission
+                      addEmergencyContact();
                     }
                   },
                   child: const Text(
@@ -228,8 +256,9 @@ class EContactState extends State<EContact> {
                         children: [
                           Text(
                             "Skip",
-                            style: TextStyle(color: Colors.white,fontWeight: FontWeight.w800),
-                            
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w800),
                           ),
                           Icon(
                             Icons.arrow_forward,

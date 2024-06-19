@@ -22,11 +22,13 @@ return new class extends Migration
             $table->string('gender');
             $table->date('dateofbirth');
             $table->string('phone_number');
+            $table->string('verify_code')->nullable();
+            $table->dateTime(('expire_at'))->nullable();
+            $table->string('profile_image')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
     }
-
     /**
      * Reverse the migrations.
      *

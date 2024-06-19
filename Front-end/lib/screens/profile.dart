@@ -1,11 +1,15 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:guardi_app/screens/e.contacts.dart';
+import 'package:guardi_app/services/profile_services.dart';
 import 'package:guardi_app/widgets/dateField.dart';
 import 'package:guardi_app/widgets/textField.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
 
 class ProfileState extends StatefulWidget {
   const ProfileState({Key? key}) : super(key: key);
@@ -17,8 +21,8 @@ class ProfileState extends StatefulWidget {
 
 class Profile extends State<ProfileState> {
   Uint8List? _image;
-  File? selectedIMage;
-  String groupValue = "Female";
+  File? selectedImage;
+  String groupValue = "female";
   bool isLoading = false;
 
   GlobalKey<FormState> formKey = GlobalKey();
@@ -27,6 +31,80 @@ class Profile extends State<ProfileState> {
   final lastName = TextEditingController();
   final phoneNumber = TextEditingController();
   final dateOfBirth = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    getUserProfile();
+  }
+
+   getUserProfile() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final http.Response response = await ProfileService.getUserProfile();
+
+      print(response.statusCode);
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = json.decode(response.body);
+        setState(() {
+          firstName.text = responseData['Fname'];
+          lastName.text = responseData['Lname'];
+          phoneNumber.text = responseData['phone_number'];
+          groupValue = responseData['gender'];
+          dateOfBirth.text = responseData['dateofbirth'];
+          final String imagePath = responseData['profile_image'];
+          setState(() {
+            _image = imagePath != null ? Uint8List.fromList(imagePath.codeUnits) : null;
+          });
+        });
+      } else {
+        // Handle other status codes
+        print('Failed to get user profile: ${response.statusCode}');
+      }
+    } catch (e) {
+      // Handle errors
+      print('Error fetching user profile: $e');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  void updateUserProfile() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    String? firstNameValue = firstName.text;
+    String? lastNameValue = lastName.text;
+    String? phoneNumberValue = phoneNumber.text;
+
+    try {
+      final response = await ProfileService.updateProfile(
+        firstNameValue,
+        lastNameValue,
+        phoneNumberValue,
+        selectedImage,
+      );
+
+      if (response.statusCode == 201) {
+        await getUserProfile();
+        print('profile updated successively');
+      } else {
+        print('Failed to update user profile: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error updating user profile: $e');
+    }
+
+    setState(() {
+      isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -186,8 +264,8 @@ class Profile extends State<ProfileState> {
                           });
                         },
                         items: <String>[
-                          'Female',
-                          'Male',
+                          'female',
+                          'male',
                         ].map<DropdownMenuItem<String>>((String value) {
                           return DropdownMenuItem<String>(
                             value: value,
@@ -234,7 +312,7 @@ class Profile extends State<ProfileState> {
                     onPressed: () {
                       Navigator.push(context,
                           MaterialPageRoute(builder: (context) {
-                        return const ProfileState();
+                        return const EContact();
                       }));
                     },
                     child: const Text(
@@ -260,6 +338,9 @@ class Profile extends State<ProfileState> {
                       ),
                     ),
                     onPressed: () {
+                      if (formKey.currentState!.validate()) {
+                        updateUserProfile();
+                      }
                       Navigator.push(context,
                           MaterialPageRoute(builder: (context) {
                         return const ProfileState();
@@ -346,7 +427,7 @@ class Profile extends State<ProfileState> {
         await ImagePicker().pickImage(source: ImageSource.gallery);
     if (returnImage == null) return;
     setState(() {
-      selectedIMage = File(returnImage.path);
+      selectedImage = File(returnImage.path);
       _image = File(returnImage.path).readAsBytesSync();
     });
     Navigator.of(context).pop(); //close the model sheet
@@ -358,7 +439,7 @@ class Profile extends State<ProfileState> {
         await ImagePicker().pickImage(source: ImageSource.camera);
     if (returnImage == null) return;
     setState(() {
-      selectedIMage = File(returnImage.path);
+      selectedImage = File(returnImage.path);
       _image = File(returnImage.path).readAsBytesSync();
     });
     Navigator.of(context).pop();

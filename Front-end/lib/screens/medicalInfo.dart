@@ -1,6 +1,13 @@
 // ignore_for_file: non_constant_identifier_names
 
 import 'package:flutter/material.dart';
+import 'dart:convert';
+
+import 'package:guardi_app/screens/e.contacts.dart';
+import 'package:guardi_app/services/medical_services.dart';
+import 'package:http/http.dart' as http;
+
+import '../services/routes.dart';
 
 class Medical extends StatefulWidget {
   const Medical({Key? key}) : super(key: key);
@@ -32,30 +39,57 @@ class MedicalInfo extends State<Medical> {
         setState(() {
           bloodType = type;
         });
-      },
-      style: OutlinedButton.styleFrom(
-        fixedSize: const Size(50, 50),
-        side: BorderSide(
-          color: (bloodType == type)
-              ? Colors.transparent
-              : const Color.fromARGB(255, 187, 181, 181),
+      }, // Added a missing closing parenthesis here
+      child: Text(type),
+      style: ButtonStyle(
+        foregroundColor: MaterialStateProperty.all<Color>(
+          bloodType == type ? Colors.white : Colors.black,
         ),
-        backgroundColor: (bloodType == type)
-            ? Colors.red
-            : const Color.fromARGB(255, 255, 255, 255),
-        textStyle: const TextStyle(
-          fontSize: 17,
+        backgroundColor: MaterialStateProperty.all<Color>(
+          bloodType == type ? Colors.blue : Colors.transparent,
         ),
-        shape: const CircleBorder(),
-        elevation: 8,
-        shadowColor: (bloodType == type) ? Colors.transparent : Colors.black,
-      ),
-      child: Text(
-        type,
-        style: const TextStyle(color: Colors.black),
       ),
     );
   }
+  storeMedical() async {
+    http.Response response = await MedicalInformationService.storeMedicalInfo(
+        allergiesController.text,
+        otherController.text,
+        bloodType,
+        medicationController.text,
+    );
+    Map responseMap = jsonDecode(response.body);
+    print(responseMap);
+    if (response.statusCode == 201) {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) => const EContact(),
+          ));
+    } else {
+      errorSnackBar(context, responseMap.values.first[0]);
+    }
+    // } else {
+    //   errorSnackBar(context, 'email not valid');
+    // }
+  }
+  //
+  // storeMedical() async {
+  //
+  //   http.Response response = await MedicalInformationService.storeMedicalInfo(
+  //   'A', 'aaaaaaa','aaaaaaaaa',
+  //   );
+  //   Map responseMap = jsonDecode(response.body);
+  //   if (response.statusCode == 200) {
+  //     Navigator.push(
+  //         context,
+  //         MaterialPageRoute(
+  //           builder: (BuildContext context) => const Medical(),
+  //         ));
+  //   } else {
+  //     print(groupValue);
+  //     errorSnackBar(context, responseMap.values.first[0]);
+  //   }
 
   @override
   Widget build(BuildContext context) {
@@ -208,7 +242,7 @@ class MedicalInfo extends State<Medical> {
                       height: containerHeight,
                       width: 350,
                       margin:
-                          const EdgeInsets.only(left: 20, right: 20, top: 20),
+                      const EdgeInsets.only(left: 20, right: 20, top: 20),
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
                         color: const Color(0xFFE0E0E0),
@@ -286,7 +320,7 @@ class MedicalInfo extends State<Medical> {
                             if (other!)
                               Padding(
                                 padding:
-                                    const EdgeInsets.symmetric(horizontal: 25),
+                                const EdgeInsets.symmetric(horizontal: 25),
                                 child: Column(
                                   children: [
                                     Row(
@@ -333,10 +367,10 @@ class MedicalInfo extends State<Medical> {
                                               child: TextField(
                                                 controller: otherController2,
                                                 decoration:
-                                                    const InputDecoration(
+                                                const InputDecoration(
                                                   labelText: 'Other disease',
                                                   hintText:
-                                                      'Enter other disease',
+                                                  'Enter other disease',
                                                 ),
                                               ),
                                             ),
@@ -376,10 +410,10 @@ class MedicalInfo extends State<Medical> {
                                               child: TextField(
                                                 controller: otherController3,
                                                 decoration:
-                                                    const InputDecoration(
+                                                const InputDecoration(
                                                   labelText: 'Other disease',
                                                   hintText:
-                                                      'Enter other disease',
+                                                  'Enter other disease',
                                                 ),
                                               ),
                                             ),
@@ -399,7 +433,7 @@ class MedicalInfo extends State<Medical> {
                       height: thirdCH,
                       width: 350,
                       margin:
-                          const EdgeInsets.only(left: 20, right: 20, top: 20),
+                      const EdgeInsets.only(left: 20, right: 20, top: 20),
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
                         color: const Color(0xFFE0E0E0),
@@ -439,7 +473,7 @@ class MedicalInfo extends State<Medical> {
                             if (groupValue3 == "Yes")
                               Padding(
                                 padding:
-                                    const EdgeInsets.symmetric(horizontal: 30),
+                                const EdgeInsets.symmetric(horizontal: 30),
                                 child: Column(
                                   children: [
                                     Row(
@@ -450,7 +484,7 @@ class MedicalInfo extends State<Medical> {
                                             decoration: const InputDecoration(
                                               labelText: 'Medications',
                                               hintText:
-                                                  'Enter Medication you take',
+                                              'Enter Medication you take',
                                             ),
                                           ),
                                         ),
@@ -484,12 +518,12 @@ class MedicalInfo extends State<Medical> {
                                             Expanded(
                                               child: TextField(
                                                 controller:
-                                                    medicationController2,
+                                                medicationController2,
                                                 decoration:
-                                                    const InputDecoration(
+                                                const InputDecoration(
                                                   labelText: 'Medications',
                                                   hintText:
-                                                      'Enter Medication you take',
+                                                  'Enter Medication you take',
                                                 ),
                                               ),
                                             ),
@@ -509,7 +543,7 @@ class MedicalInfo extends State<Medical> {
                                                 onPressed: () {
                                                   setState(() {
                                                     medicationTextField3 =
-                                                        false;
+                                                    false;
                                                     thirdCH = thirdCH - 50;
                                                   });
                                                 },
@@ -527,12 +561,12 @@ class MedicalInfo extends State<Medical> {
                                             Expanded(
                                               child: TextField(
                                                 controller:
-                                                    medicationController3,
+                                                medicationController3,
                                                 decoration:
-                                                    const InputDecoration(
+                                                const InputDecoration(
                                                   labelText: 'Medications',
                                                   hintText:
-                                                      'Enter Medication you take',
+                                                  'Enter Medication you take',
                                                 ),
                                               ),
                                             ),
@@ -617,7 +651,7 @@ class MedicalInfo extends State<Medical> {
                                       controller: allergiesController,
                                       decoration: const InputDecoration(
                                         labelText:
-                                            'What allergies do you have?',
+                                        'What allergies do you have?',
                                         hintText: 'Enter allergies you have',
                                       ),
                                     ),
@@ -654,9 +688,9 @@ class MedicalInfo extends State<Medical> {
                                           controller: allergiesController2,
                                           decoration: const InputDecoration(
                                             labelText:
-                                                'What allergies do you have?',
+                                            'What allergies do you have?',
                                             hintText:
-                                                'Enter allergies you have',
+                                            'Enter allergies you have',
                                           ),
                                         ),
                                       ),
@@ -695,9 +729,9 @@ class MedicalInfo extends State<Medical> {
                                           controller: allergiesController3,
                                           decoration: const InputDecoration(
                                             labelText:
-                                                'What allergies do you have?',
+                                            'What allergies do you have?',
                                             hintText:
-                                                'Enter allergies you have',
+                                            'Enter allergies you have',
                                           ),
                                         ),
                                       ),
@@ -729,7 +763,12 @@ class MedicalInfo extends State<Medical> {
                 margin: const EdgeInsets.only(
                     left: 80, right: 80, bottom: 20, top: 20),
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: ()  async{
+                      storeMedical();
+                    // Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    //   return EContact();
+                    // }));
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF0066FF),
                     fixedSize: const Size(100, 45),
