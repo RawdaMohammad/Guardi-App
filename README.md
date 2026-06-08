@@ -21,6 +21,21 @@ between users, emergency services, and trusted contacts. Our goals include enhan
 - Firebase (Firestore)
 - Flask (Integration between CNN model and Flutter)
 
+## 📱 Demo
+
+<div align="center">
+
+  [![Watch Demo](https://github.com/user-attachments/assets/90f080d5-cf97-4b45-b93f-bf49e4638606)](https://github.com/user-attachments/assets/90f080d5-cf97-4b45-b93f-bf49e4638606)
+  
+</div>
+
+
+## 📱 UI
+
+<img width="100%" alt="Guardi_Screens" src="https://github.com/user-attachments/assets/f73b0144-8984-487a-9eb5-32f9409a5d82" />
+
+
 ## 📂 Project structure
 
 <img width="307" height="257" alt="Screenshot 2026-05-13 144155" src="https://github.com/user-attachments/assets/f60ec75e-9d96-493e-ba15-ddefe70a57b3" />
+
